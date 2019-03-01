@@ -13,5 +13,5 @@ type Config struct {
 	Id string `json:"id,omitempty"`
 
 	//DEPRECATED
-	Data json.RawMessage `json:"data,omitempty"`
+	Data *json.RawMessage `json:"data,omitempty"`
 }

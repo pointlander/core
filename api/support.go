@@ -3,10 +3,11 @@ package api
 import (
 	"context"
 	"encoding/json"
-	"github.com/project-flogo/core/support/log"
 	"reflect"
 	"strconv"
-	
+
+	"github.com/project-flogo/core/support/log"
+
 	"strings"
 
 	"github.com/project-flogo/core/action"
@@ -81,7 +82,8 @@ func toActionConfig(act *Action) *trigger.ActionConfig {
 
 	//todo handle error
 	jsonData, _ := json.Marshal(act.Settings())
-	actionCfg.Data = jsonData
+	var data json.RawMessage = jsonData
+	actionCfg.Data = &data
 
 	actionCfg.If = act.condition
 	if len(act.inputMappings) > 0 {
@@ -142,27 +144,26 @@ func NewActivity(act activity.Activity, settings ...interface{}) (activity.Activ
 
 	ref := activity.GetRef(act)
 
-   	if f := activity.GetFactory(ref); f == nil {
+	if f := activity.GetFactory(ref); f == nil {
 
 		return activity.Get(ref), nil
-	}else {
-		if len(settings) != 0{
-			
+	} else {
+		if len(settings) != 0 {
+
 			inSettings := settings[0]
-		
+
 			var settingsMap map[string]interface{}
 			if im, ok := inSettings.(map[string]interface{}); ok {
 				settingsMap = im
 			} else {
 				settingsMap = metadata.StructToMap(inSettings)
 			}
-			
-			
+
 			f := activity.GetFactory(ref)
 			ctx := &initCtx{settings: settingsMap}
 			return f(ctx)
 		}
-		return nil, nil		
+		return nil, nil
 	}
 	return nil, nil
 
@@ -222,7 +223,7 @@ func EvalActivity(act activity.Activity, input interface{}) (map[string]interfac
 		//return error
 	}
 
-	ac := &activityContext{input: make(map[string]interface{}), output: make(map[string]interface{}), logger:logger}
+	ac := &activityContext{input: make(map[string]interface{}), output: make(map[string]interface{}), logger: logger}
 
 	for key, value := range inputMap {
 		ac.input[key] = value
