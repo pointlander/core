@@ -175,8 +175,12 @@ func Generate(config *app.Config, file string) {
 	}
 
 	for i, act := range config.Actions {
-
-		actImport := app.pkgs[act.Ref[1:]]
+		var actImport util.Import
+		if act.Ref[:0] == "#" {
+			actImport = app.pkgs[act.Ref[1:]]
+		} else {
+			actImport = app.pkgs[act.Ref]
+		}
 
 		factory, settingsName := action.GetFactory(act.Ref), fmt.Sprintf("actionSettings%d", i)
 		if generator, ok := factory.(Generator); ok {
@@ -194,8 +198,13 @@ func Generate(config *app.Config, file string) {
 		errorCheck()
 	}
 	for i, trigger := range config.Triggers {
+		var trigImport util.Import
 
-		trigImport := app.pkgs[trigger.Ref[1:]]
+		if trigger.Ref[:0] == "#" {
+			trigImport = app.pkgs[trigger.Ref[1:]]
+		} else {
+			trigImport = app.pkgs[trigger.Ref[1:]]
+		}
 
 		output += fmt.Sprintf("trg%d := app.NewTrigger(&%s.Trigger{}, %#v)\n", i, trigImport.CanonicalAlias(), trigger.Settings)
 		for j, handler := range trigger.Handlers {
@@ -205,8 +214,12 @@ func Generate(config *app.Config, file string) {
 				if act.Id != "" {
 					output += fmt.Sprintf("action%d_%d_%d, err := handler%d_%d.NewAction(\"%s\")\n", i, j, k, i, j, act.Id)
 				} else {
-
-					actImport := app.pkgs[act.Ref[1:]]
+					var actImport util.Import
+					if act.Ref[:0] == "#" {
+						actImport = app.pkgs[act.Ref[1:]]
+					} else {
+						actImport = app.pkgs[act.Ref]
+					}
 
 					factory, settingsName := action.GetFactory(act.Ref), fmt.Sprintf("settings%d_%d_%d", i, j, k)
 					if generator, ok := factory.(Generator); ok {
