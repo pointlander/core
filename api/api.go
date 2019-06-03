@@ -56,7 +56,10 @@ type Action struct {
 
 // NewApp creates a new Flogo application
 func NewApp() *App {
-	return &App{}
+	return &App{
+		properties: make(map[string]data.TypedValue),
+		actions:    make(map[string]*Action),
+	}
 }
 
 // NewTrigger adds a new trigger to the application
@@ -88,6 +91,7 @@ func (a *App) NewTrigger(trg trigger.Trigger, settings interface{}) *Trigger {
 	return newTrg
 }
 
+// AddAction adds an action to the application
 func (a *App) AddAction(id string, act action.Action, settings interface{}) error {
 
 	newAct, err := newAction(act, settings)
